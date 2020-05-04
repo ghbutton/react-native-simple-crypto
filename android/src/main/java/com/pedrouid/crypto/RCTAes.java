@@ -126,7 +126,7 @@ public class RCTAes extends ReactContextBaseJavaModule {
 
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, hexIv == null ? emptyIvSpec : new IvParameterSpec(Hex.decode(hexIv)));
-        byte [] textBytes = java.util.Base64.getDecoder().decode(textBase64);
+        byte [] textBytes = android.util.Base64.decode(textBase64, 0);
         byte[] encrypted = cipher.doFinal(textBytes);
         return Base64.encodeToString(encrypted, Base64.NO_WRAP);
     }
