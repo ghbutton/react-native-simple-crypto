@@ -10,7 +10,7 @@ Pod::Spec.new do |s|
   s.requires_arc  = true
   s.homepage      = package_json["homepage"]
   s.source        = { :git => "#{package_json["repository"]["url"]}" }
-  s.platform      = :ios, '8.0'
+  s.platforms     = { :ios => "8.0", :osx => "10.14" }
   s.source_files  = "ios/**/*.{h,m}"
 
   s.dependency "React"
