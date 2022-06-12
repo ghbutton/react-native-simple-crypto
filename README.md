@@ -94,9 +94,12 @@ All methods are asynchronous and return promises (except for convert utils)
   - hash(password: string, salt: ArrayBuffer, iterations: number, keyLength: number, hash: string)
 - RSA
   - generateKeys(keySize: number)
-  - encrypt(data: string, key: string)
   - sign(data: string, key: string, hash: string)
   - verify(data: string, secretToVerify: string, hash: string)
+  - encrypt(data: string, key: string) (Expects UTF8 string data inputs)
+  - decrypt(data: string, key: string) (Returns UTF8 string)
+  - encrypt64(data: string, key: string) (Expects Base64 string data inputs)
+  - decrypt64(data: string, key: string) (Returns Base64 string)
 - utils
   - randomBytes(bytes: number)
   - convertArrayBufferToUtf8(input: ArrayBuffer)

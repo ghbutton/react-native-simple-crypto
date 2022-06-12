@@ -115,7 +115,7 @@ public class RNSCAes extends ReactContextBaseJavaModule {
 
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, hexIv == null ? emptyIvSpec : new IvParameterSpec(Hex.decode(hexIv)));
-        byte[] encrypted = cipher.doFinal(Base64.decode(textBase64, Base64.DEFAULT));
+        byte[] encrypted = cipher.doFinal(Base64.decode(textBase64, Base64.NO_WRAP));
         return Base64.encodeToString(encrypted, Base64.NO_WRAP);
     }
 
@@ -129,7 +129,7 @@ public class RNSCAes extends ReactContextBaseJavaModule {
 
         Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, hexIv == null ? emptyIvSpec : new IvParameterSpec(Hex.decode(hexIv)));
-        byte[] decrypted = cipher.doFinal(Base64.decode(ciphertext, Base64.DEFAULT));
+        byte[] decrypted = cipher.doFinal(Base64.decode(ciphertext, Base64.NO_WRAP));
         return Base64.encodeToString(decrypted, Base64.NO_WRAP);
     }
 

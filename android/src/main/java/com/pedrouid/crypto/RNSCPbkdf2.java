@@ -35,8 +35,8 @@ public class RNSCPbkdf2 extends ReactContextBaseJavaModule {
     @ReactMethod
     public void hash(String pwdBase64, String saltBase64, Integer iterations, Integer keyLen, String hash, Promise promise) {
         try {
-            byte[] pwdBytes = Base64.decode(pwdBase64, Base64.DEFAULT);
-            byte[] saltBytes = Base64.decode(saltBase64, Base64.DEFAULT);
+            byte[] pwdBytes = Base64.decode(pwdBase64, Base64.NO_WRAP);
+            byte[] saltBytes = Base64.decode(saltBase64, Base64.NO_WRAP);
             byte[] digest = pbkdf2(pwdBytes, saltBytes, iterations, keyLen, hash);
             promise.resolve(Base64.encodeToString(digest, Base64.NO_WRAP));
         } catch (Exception e) {
