@@ -96,9 +96,9 @@ const AES = {
 };
 
 const SHA = {
-  sha1: data => SHAWrapper(data, 'SHA-1'),
-  sha256: data => SHAWrapper(data, 'SHA-256'),
-  sha512: data => SHAWrapper(data, 'SHA-512')
+  sha1: async(data) => SHAWrapper(data, 'SHA-1'),
+  sha256: async(data) => SHAWrapper(data, 'SHA-256'),
+  sha512: async(data) => SHAWrapper(data, 'SHA-512')
 };
 
 const HMAC = {
