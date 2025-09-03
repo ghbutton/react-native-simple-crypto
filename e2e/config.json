@@ -1,0 +1,25 @@
+{
+  "setupFilesAfterEnv": ["<rootDir>/e2e/setup.js"],
+  "testEnvironment": "node",
+  "testRunner": "jest",
+  "runnerConfig": "e2e/config.json",
+  "specs": "e2e",
+  "configurations": {
+    "ios.sim.debug": {
+      "type": "ios.simulator",
+      "binaryPath": "ios/build/Build/Products/Debug-iphonesimulator/YourApp.app",
+      "build": "xcodebuild -workspace ios/YourApp.xcworkspace -scheme YourApp -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build",
+      "device": {
+        "type": "iPhone 15"
+      }
+    },
+    "android.emu.debug": {
+      "type": "android.emulator",
+      "binaryPath": "android/app/build/outputs/apk/debug/app-debug.apk",
+      "build": "cd android && ./gradlew assembleDebug assembleAndroidTest -DtestBuildType=debug && cd ..",
+      "device": {
+        "avdName": "Pixel_4_API_30"
+      }
+    }
+  }
+}

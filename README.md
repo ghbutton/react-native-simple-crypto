@@ -116,6 +116,101 @@ All methods are asynchronous and return promises (except for convert utils)
 >
 > `"Raw" (RSA-only) | "SHA1" | "SHA224" | "SHA256" | "SHA384" | "SHA512"`
 
+## Testing
+
+This library includes comprehensive unit tests for all public functions. The testing setup provides fast feedback during development and ensures code quality.
+
+### Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Run all unit tests
+npm test
+
+# Run tests in watch mode (recommended for development)
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+```
+
+### Advanced Testing
+
+#### **End-to-End Testing (Optional)**
+
+For comprehensive testing on real simulators, you can set up Detox:
+
+```bash
+# Install Detox (optional)
+npm install --save-dev detox
+
+# Build and test on iOS simulator
+npm run build:ios
+npm run test:e2e:ios
+
+# Build and test on Android emulator
+npm run build:android
+npm run test:e2e:android
+```
+
+#### **Platform-Specific Testing**
+
+```bash
+# Test on iOS simulator
+npm run test:ios
+
+# Test on Android emulator
+npm run test:android
+
+# Test on both platforms
+npm run test:all-platforms
+```
+
+### Benefits
+
+- **Fast Development**: Unit tests run in milliseconds
+- **No Simulators Required**: Tests run in Node.js environment
+- **Comprehensive Coverage**: All public functions tested
+- **Edge Case Handling**: Tests handle empty inputs and special cases
+- **CI/CD Ready**: Can run on any platform without simulators
+- **Maintainable**: Well-organized test structure
+
+### Migration from Separate Test Repo
+
+If you're currently using a separate test repository like [react-native-simple-crypto-test](https://github.com/ghbutton/react-native-simple-crypto-test), you can:
+
+1. **Keep E2E tests**: Use Detox for comprehensive testing
+2. **Add unit tests**: Fast feedback during development
+3. **Improve CI**: Run unit tests on every commit
+4. **Reduce complexity**: Single repository for all code
+
+### Running Tests in CI/CD
+
+```yaml
+# Example GitHub Actions workflow
+name: Tests
+on: [push, pull_request]
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm install
+      - run: npm test
+      - run: npm run test:coverage
+
+  e2e-ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+      - run: npm install
+      - run: npm run test:e2e:ios
+```
+
 ## Example
 
 Testing [repository](https://github.com/ghbutton/react-native-simple-crypto-test).
