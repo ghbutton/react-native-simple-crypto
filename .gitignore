@@ -46,3 +46,6 @@ ios/Pods/
 # Test apps (these are generated and shouldn't be committed)
 CryptoTestApp/
 test-app/
+
+# asdf
+.tool-versions
