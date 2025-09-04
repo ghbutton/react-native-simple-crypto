@@ -385,3 +385,128 @@ if (rsaDecryptedMessage !== message ) {
 
 - [@trackforce/react-native-crypto](https://github.com/trackforce/react-native-crypto)
 - [react-native-randombytes](https://github.com/mvayngrib/react-native-randombytes)
+
+## Creating the E2E Test App
+
+To create a test app for E2E testing of `react-native-simple-crypto`, follow these steps:
+
+### Step 1: Create React Native Project
+
+```bash
+# Create a new React Native project
+npx @react-native-community/cli@latest init CryptoTestApp --skip-install
+
+# Navigate to the project
+cd CryptoTestApp
+```
+
+### Step 2: Install Dependencies
+
+```bash
+# Install React Native dependencies
+npm install
+
+# Add your crypto library as a local dependency
+npm install ../
+
+# Install required crypto dependencies
+npm install base64-js hex-lite
+```
+
+### Step 3: Configure Metro Bundler
+
+Create `metro.config.js` in the test app root:
+
+```javascript
+const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
+
+const config = {
+  resolver: {
+    extraNodeModules: {
+      'react-native-simple-crypto': require('path').resolve(__dirname, '../'),
+    },
+  },
+};
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);
+```
+
+### Step 4: Install iOS Dependencies
+
+```bash
+# Install CocoaPods dependencies
+cd ios
+bundle install
+bundle exec pod install
+cd ..
+```
+
+### Step 5: Create Test App Component
+
+Replace `App.tsx` with the test app component (see the full component in the test-app directory).
+
+### Step 6: Run the Test App
+
+```bash
+# Run on iOS
+npm run ios
+
+# Run on Android
+npm run android
+```
+
+## Quick Setup Script
+
+You can also use the automated setup script:
+
+```bash
+# Run the setup script
+./scripts/create-test-app.sh
+```
+
+Or use this one-liner to create the test app:
+
+```bash
+# Create and setup test app
+npx @react-native-community/cli@latest init CryptoTestApp --skip-install && \
+cd CryptoTestApp && \
+npm install && \
+npm install ../ && \
+npm install base64-js hex-lite && \
+cd ios && bundle install && bundle exec pod install && cd .. && \
+npm run ios
+```
+
+## What the Test App Includes
+
+- ✅ **Interactive UI** with test buttons
+- ✅ **Comprehensive crypto tests** for all functions
+- ✅ **Real-time results** with timestamps
+- ✅ **Error handling** and feedback
+- ✅ **Native module integration**
+
+## Test Functions
+
+The app tests all major crypto functions:
+- **Random Bytes** - Generate secure random data
+- **SHA Hashing** - SHA-1, SHA-256, SHA-512
+- **AES Encryption/Decryption** - Round-trip encryption
+- **HMAC** - Message authentication
+- **PBKDF2** - Password-based key derivation
+- **RSA** - Key generation, encryption/decryption
+- **Utility Functions** - Data conversion utilities
+
+## Troubleshooting
+
+**Module resolution errors:**
+- Make sure `metro.config.js` is configured correctly
+- Check that the library path points to the correct location
+- Verify all dependencies are installed
+
+**iOS build errors:**
+- Run `cd ios && bundle exec pod install && cd ..`
+- Make sure Xcode and iOS Simulator are available
+
+**Android build errors:**
+- Make sure Android SDK and emulator are set up
+- Check that `android/local.properties` is configured
