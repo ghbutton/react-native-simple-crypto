@@ -1,5 +1,0 @@
-{
-  "setupFilesAfterEnv": ["<rootDir>/../e2e/setup.js"],
-  "testEnvironment": "node",
-  "testRunner": "jest"
-}
