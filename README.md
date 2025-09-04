@@ -138,22 +138,29 @@ npm run test:coverage
 
 ### Advanced Testing
 
-#### **End-to-End Testing (Optional)**
+#### **End-to-End Testing with Test App**
 
-For comprehensive testing on real simulators, you can set up Detox:
+This repository includes a minimal React Native test app for E2E testing:
 
 ```bash
-# Install Detox (optional)
-npm install --save-dev detox
+# Install test app dependencies
+npm run test-app:install
 
-# Build and test on iOS simulator
-npm run build:ios
-npm run test:e2e:ios
+# Start Metro bundler
+npm run test-app:start
 
-# Build and test on Android emulator
-npm run build:android
-npm run test:e2e:android
+# Run on iOS simulator
+npm run test-app:ios
+
+# Run on Android emulator
+npm run test-app:android
 ```
+
+The test app provides:
+- **Interactive Testing**: Tap to run all crypto functions
+- **Real-time Results**: See test results in the app
+- **Native Module Testing**: Tests with real native modules
+- **Cross-platform Verification**: Works on iOS and Android
 
 #### **Platform-Specific Testing**
 
@@ -176,6 +183,20 @@ npm run test:all-platforms
 - **Edge Case Handling**: Tests handle empty inputs and special cases
 - **CI/CD Ready**: Can run on any platform without simulators
 - **Maintainable**: Well-organized test structure
+
+### Test Structure
+
+```
+├── __tests__/
+│   └── crypto.test.js          # Comprehensive unit tests
+├── test-app/                   # E2E test app
+│   ├── src/
+│   │   └── App.tsx            # Interactive test app
+│   ├── package.json           # Test app dependencies
+│   └── README.md              # Test app documentation
+├── jest.setup.js               # Jest configuration and mocks
+└── package.json               # Test scripts and dependencies
+```
 
 ### Migration from Separate Test Repo
 
@@ -201,14 +222,6 @@ jobs:
       - run: npm install
       - run: npm test
       - run: npm run test:coverage
-
-  e2e-ios:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - run: npm install
-      - run: npm run test:e2e:ios
 ```
 
 ## Example
