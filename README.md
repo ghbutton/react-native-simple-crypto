@@ -154,7 +154,7 @@ cd ios && bundle install && bundle exec pod install && cd ..
 npm run ios
 ```
 
-The test app provides interactive testing of all crypto functions on real simulators/emulators.
+The test app provides interactive testing of all crypto functions on real simulators/emulators and is ready to use immediately.
 
 ## Example
 
