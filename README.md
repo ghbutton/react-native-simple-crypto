@@ -1,5 +1,3 @@
-# Not maintained, looking for maintainer. Contact @ghbutton if you want take charge.
-
 # React Native Simple Crypto [![npm version](https://badge.fury.io/js/react-native-simple-crypto.svg)](https://badge.fury.io/js/react-native-simple-crypto)
 
 A simpler React-Native crypto library
@@ -18,62 +16,9 @@ A simpler React-Native crypto library
 
 ```bash
 npm install react-native-simple-crypto
-
-# OR
-
-yarn add react-native-simple-crypto
 ```
 
-### Linking Automatically
-
-```bash
-react-native link react-native-simple-crypto
-```
-
-### Linking Manually
-
-#### iOS
-
-- See [Linking Libraries](http://facebook.github.io/react-native/docs/linking-libraries-ios.html)
-  OR
-- Drag RCTCrypto.xcodeproj to your project on Xcode.
-- Click on your main project file (the one that represents the .xcodeproj) select Build Phases and drag libRCTCrypto.a from the Products folder inside the RCTCrypto.xcodeproj.
-
-#### (Android)
-
-- In `android/settings.gradle`
-
-```gradle
-...
-include ':react-native-simple-crypto'
-project(':react-native-simple-crypto').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-simple-crypto/android')
-```
-
-- In `android/app/build.gradle`
-
-```gradle
-...
-dependencies {
-    ...
-    compile project(':react-native-simple-crypto')
-}
-```
-
-- register module (in MainApplication.java)
-
-```java
-......
-import com.pedrouid.crypto.RNSCCryptoPackage;
-
-......
-
-@Override
-protected List<ReactPackage> getPackages() {
-   ......
-   new RNSCCryptoPackage(),
-   ......
-}
-```
+For React Native 0.60+, autolinking handles native setup automatically. For iOS, run `cd ios && pod install`.
 
 ## API
 
@@ -118,159 +63,87 @@ All methods are asynchronous and return promises (except for convert utils)
 
 ## Example
 
-Testing [repository](https://github.com/ghbutton/react-native-simple-crypto-test).
-
 ```javascript
 import RNSimpleCrypto from "react-native-simple-crypto";
 
-const toHex = RNSimpleCrypto.utils.convertArrayBufferToHex
-const toUtf8 = RNSimpleCrypto.utils.convertArrayBufferToUtf8
-
 // -- AES ------------------------------------------------------------- //
 const message = "data to encrypt";
-const messageArrayBuffer = RNSimpleCrypto.utils.convertUtf8ToArrayBuffer(
-  message
-);
+const messageBuffer = RNSimpleCrypto.utils.convertUtf8ToArrayBuffer(message);
+const key = await RNSimpleCrypto.utils.randomBytes(16);
+const iv = await RNSimpleCrypto.utils.randomBytes(16);
 
-const keyArrayBuffer = await RNSimpleCrypto.utils.randomBytes(32);
-console.log("randomBytes key", toHex(keyArrayBuffer));
-
-const ivArrayBuffer = await RNSimpleCrypto.utils.randomBytes(16);
-console.log("randomBytes iv", toHex(ivArrayBuffer));
-
-const cipherTextArrayBuffer = await RNSimpleCrypto.AES.encrypt(
-  messageArrayBuffer,
-  keyArrayBuffer,
-  ivArrayBuffer
-);
-console.log("AES encrypt", toHex(cipherTextArrayBuffer))
-
-const decryptedArrayBuffer = await RNSimpleCrypto.AES.decrypt(
-  cipherTextArrayBuffer,
-  keyArrayBuffer,
-  ivArrayBuffer
-);
-console.log("AES decrypt", toUtf8(decryptedArrayBuffer));
-if (toUtf8(decryptedArrayBuffer) !== message) {
-  console.error('AES decrypt returned unexpected results')
-}
-
-// -- HMAC ------------------------------------------------------------ //
-
-const keyHmac = await RNSimpleCrypto.utils.randomBytes(32);
-const signatureArrayBuffer = await RNSimpleCrypto.HMAC.hmac256(messageArrayBuffer, keyHmac);
-console.log("HMAC signature", toHex(signatureArrayBuffer));
+const cipherText = await RNSimpleCrypto.AES.encrypt(messageBuffer, key, iv);
+const decrypted = await RNSimpleCrypto.AES.decrypt(cipherText, key, iv);
+console.log(RNSimpleCrypto.utils.convertArrayBufferToUtf8(decrypted)); // "data to encrypt"
 
 // -- SHA ------------------------------------------------------------- //
+const sha256 = await RNSimpleCrypto.SHA.sha256("test");
 
-const sha1Hash = await RNSimpleCrypto.SHA.sha1("test");
-console.log("SHA1 hash", sha1Hash);
-
-const sha256Hash = await RNSimpleCrypto.SHA.sha256("test");
-console.log("SHA256 hash", sha256Hash);
-
-const sha512Hash = await RNSimpleCrypto.SHA.sha512("test");
-console.log("SHA512 hash", sha512Hash);
-
-const arrayBufferToHash = RNSimpleCrypto.utils.convertUtf8ToArrayBuffer("test");
-const sha1ArrayBuffer = await RNSimpleCrypto.SHA.sha1(arrayBufferToHash);
-console.log('SHA1 hash bytes', toHex(sha1ArrayBuffer));
-if (toHex(sha1ArrayBuffer) !== sha1Hash) {
-  console.error('SHA1 result mismatch!')
-}
-
-const sha256ArrayBuffer = await RNSimpleCrypto.SHA.sha256(arrayBufferToHash);
-console.log('SHA256 hash bytes', toHex(sha256ArrayBuffer));
-if (toHex(sha256ArrayBuffer) !== sha256Hash) {
-  console.error('SHA256 result mismatch!')
-}
-
-const sha512ArrayBuffer = await RNSimpleCrypto.SHA.sha512(arrayBufferToHash);
-console.log('SHA512 hash bytes', toHex(sha512ArrayBuffer));
-if (toHex(sha512ArrayBuffer) !== sha512Hash) {
-  console.error('SHA512 result mismatch!')
-}
+// -- HMAC ------------------------------------------------------------ //
+const hmacKey = await RNSimpleCrypto.utils.randomBytes(32);
+const signature = await RNSimpleCrypto.HMAC.hmac256(messageBuffer, hmacKey);
 
 // -- PBKDF2 ---------------------------------------------------------- //
+const derivedKey = await RNSimpleCrypto.PBKDF2.hash("password", "salt", 4096, 32, "SHA1");
 
-const password = "secret password";
-const salt = "my-salt"
-const iterations = 4096;
-const keyInBytes = 32;
-const hash = "SHA1";
-const passwordKey = await RNSimpleCrypto.PBKDF2.hash(
-  password,
-  salt,
-  iterations,
-  keyInBytes,
-  hash
-);
-console.log("PBKDF2 passwordKey", toHex(passwordKey));
+// -- RSA ------------------------------------------------------------- //
+const rsaKeys = await RNSimpleCrypto.RSA.generateKeys(2048);
+const encrypted = await RNSimpleCrypto.RSA.encrypt(message, rsaKeys.public);
+const decryptedRsa = await RNSimpleCrypto.RSA.decrypt(encrypted, rsaKeys.private);
 
-const passwordKeyArrayBuffer = await RNSimpleCrypto.PBKDF2.hash(
-  RNSimpleCrypto.utils.convertUtf8ToArrayBuffer(password),
-  RNSimpleCrypto.utils.convertUtf8ToArrayBuffer(salt),
-  iterations,
-  keyInBytes,
-  hash
-);
-console.log("PBKDF2 passwordKey bytes", toHex(passwordKeyArrayBuffer));
+const sig = await RNSimpleCrypto.RSA.sign(message, rsaKeys.private, "SHA256");
+const valid = await RNSimpleCrypto.RSA.verify(sig, message, rsaKeys.public, "SHA256");
+```
 
-if (toHex(passwordKeyArrayBuffer) !== toHex(passwordKey)) {
-  console.error('PBKDF2 result mismatch!')
-}
+## Running E2E Tests
 
-const password2 = messageArrayBuffer;
-const salt2 = await RNSimpleCrypto.utils.randomBytes(8);
-const iterations2 = 10000;
-const keyInBytes2 = 32;
-const hash2 = "SHA256";
+The test suite uses a React Native example app with [Maestro](https://maestro.mobile.dev/) for E2E testing. Tests cover AES, SHA, HMAC, PBKDF2, RSA, and utility functions (22+ assertions).
 
-const passwordKey2 = await RNSimpleCrypto.PBKDF2.hash(
-  password2,
-  salt2,
-  iterations2,
-  keyInBytes2,
-  hash2
-);
-console.log("PBKDF2 passwordKey2", toHex(passwordKey2));
+### Prerequisites
 
+- Xcode with iOS Simulator
+- [Maestro CLI](https://maestro.mobile.dev/getting-started/installing-maestro)
 
-// -- RSA ------------------------------------------------------------ //
+```bash
+curl -Ls "https://get.maestro.mobile.dev" | bash
+```
 
-const rsaKeys = await RNSimpleCrypto.RSA.generateKeys(1024);
-console.log("RSA1024 private key", rsaKeys.private);
-console.log("RSA1024 public key", rsaKeys.public);
+### Setup
 
-const rsaEncryptedMessage = await RNSimpleCrypto.RSA.encrypt(
-  message,
-  rsaKeys.public
-);
-console.log("rsa Encrypt:", rsaEncryptedMessage);
+```bash
+# Install library dependencies (needed for hex-lite and base64-js)
+npm install
 
-const rsaSignature = await RNSimpleCrypto.RSA.sign(
-  rsaEncryptedMessage,
-  rsaKeys.private,
-  "SHA256"
-);
-console.log("rsa Signature:", rsaSignature);
+# Install example app dependencies
+cd example
+npm install
+cd ios && bundle exec pod install && cd ..
+```
 
-const validSignature = await RNSimpleCrypto.RSA.verify(
-  rsaSignature,
-  rsaEncryptedMessage,
-  rsaKeys.public,
-  "SHA256"
-);
-console.log("rsa signature verified:", validSignature);
+### Run
 
-const rsaDecryptedMessage = await RNSimpleCrypto.RSA.decrypt(
-  rsaEncryptedMessage,
-  rsaKeys.private
-);
-console.log("rsa Decrypt:", rsaDecryptedMessage);
-if (rsaDecryptedMessage !== message ) {
-  console.error('RSA decrypt returned unexpected result')
-}
+```bash
+# Terminal 1: Start Metro
+cd example
+npx react-native start --reset-cache
+
+# Terminal 2: Build and run the app on simulator
+cd example
+npx react-native run-ios --simulator="iPhone 16 Pro"
+
+# Terminal 3: Run Maestro tests (once the app is loaded)
+maestro test maestro/flows/run_all_tests.yaml
+```
+
+You can also run individual test modules:
+
+```bash
+maestro test maestro/flows/aes_tests.yaml
+maestro test maestro/flows/sha_tests.yaml
+maestro test maestro/flows/hmac_tests.yaml
+maestro test maestro/flows/pbkdf2_tests.yaml
+maestro test maestro/flows/rsa_tests.yaml
+maestro test maestro/flows/utils_tests.yaml
 ```
 
 ## Forked Libraries

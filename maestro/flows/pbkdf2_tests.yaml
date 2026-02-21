@@ -1,0 +1,19 @@
+appId: org.reactjs.native.example.SimpleCryptoExample
+---
+- launchApp
+- tapOn:
+    id: "pbkdf2-run-button"
+- extendedWaitUntil:
+    visible:
+      id: "pbkdf2-pbkdf2-length-result"
+      text: "PASS"
+    timeout: 15000
+- assertVisible:
+    id: "pbkdf2-pbkdf2-deterministic-result"
+    text: "PASS"
+- assertVisible:
+    id: "pbkdf2-pbkdf2-string-vs-buffer-result"
+    text: "PASS"
+- assertVisible:
+    id: "pbkdf2-pbkdf2-sha256-result"
+    text: "PASS"

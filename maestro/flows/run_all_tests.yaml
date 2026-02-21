@@ -1,0 +1,10 @@
+appId: org.reactjs.native.example.SimpleCryptoExample
+---
+- launchApp
+- tapOn:
+    id: "run-all-button"
+- extendedWaitUntil:
+    visible:
+      id: "overall-status"
+      text: "ALL PASS"
+    timeout: 60000

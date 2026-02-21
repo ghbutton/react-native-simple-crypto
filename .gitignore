@@ -33,3 +33,5 @@ android/build
 .gradle
 local.properties
 *.iml
+
+.tool-versions
