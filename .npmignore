@@ -43,3 +43,6 @@ local.properties
 
 ### npmignore ###
 example
+maestro
+eslint.config.js
+.tool-versions
