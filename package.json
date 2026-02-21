@@ -32,10 +32,14 @@
     "url": "https://github.com/ghbutton/react-native-simple-crypto/issues"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
   },
   "dependencies": {
-    "base64-js": "^1.5.1",
-    "hex-lite": "^1.5.0"
+    "base64-js": "^1.5.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.1"
   }
 }

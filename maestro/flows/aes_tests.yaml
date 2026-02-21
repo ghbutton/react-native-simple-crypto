@@ -11,3 +11,9 @@ appId: org.reactjs.native.example.SimpleCryptoExample
 - assertVisible:
     id: "aes-wrong-key-result"
     text: "PASS"
+- assertVisible:
+    id: "aes-wrong-iv-result"
+    text: "PASS"
+- assertVisible:
+    id: "aes-encrypt-empty-params-result"
+    text: "PASS"

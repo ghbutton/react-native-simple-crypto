@@ -1,7 +1,6 @@
 'use strict';
 
 import base64js from 'base64-js';
-import hexLite from 'hex-lite';
 import { NativeModules } from 'react-native';
 
 function convertArrayBufferToUtf8(arrayBuffer) {
@@ -61,9 +60,25 @@ function convertBase64ToArrayBuffer(base64) {
   return base64js.toByteArray(base64).buffer;
 }
 
-const convertArrayBufferToHex = hexLite.fromBuffer;
+function convertArrayBufferToHex(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  let hex = '';
+  for (let i = 0; i < bytes.length; i++) {
+    hex += ('00' + bytes[i].toString(16)).slice(-2);
+  }
+  return hex;
+}
 
-const convertHexToArrayBuffer = hexLite.toBuffer;
+function convertHexToArrayBuffer(hex) {
+  if (hex.length % 2) {
+    throw new Error('invalid hex: ' + hex);
+  }
+  const bytes = [];
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes.push(parseInt(hex.substr(i, 2), 16));
+  }
+  return new Uint8Array(bytes).buffer;
+}
 
 async function randomBytes(length) {
   return convertBase64ToArrayBuffer(await NativeModules.RNSCRandomBytes.randomBytes(length));

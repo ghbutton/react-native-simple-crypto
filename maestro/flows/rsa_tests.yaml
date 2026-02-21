@@ -7,13 +7,28 @@ appId: org.reactjs.native.example.SimpleCryptoExample
     visible:
       id: "rsa-keygen-result"
       text: "PASS"
-    timeout: 30000
+    timeout: 60000
 - assertVisible:
     id: "rsa-encrypt-decrypt-result"
+    text: "PASS"
+- assertVisible:
+    id: "rsa-encrypt64-decrypt64-result"
     text: "PASS"
 - assertVisible:
     id: "rsa-sign-verify-result"
     text: "PASS"
 - assertVisible:
     id: "rsa-verify-tampered-result"
+    text: "PASS"
+- assertVisible:
+    id: "rsa-decrypt-wrong-key-result"
+    text: "PASS"
+- assertVisible:
+    id: "rsa-encrypt-invalid-key-result"
+    text: "PASS"
+- assertVisible:
+    id: "rsa-sign-invalid-key-result"
+    text: "PASS"
+- assertVisible:
+    id: "rsa-decrypt-invalid-key-result"
     text: "PASS"

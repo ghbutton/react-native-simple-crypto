@@ -129,5 +129,28 @@ export async function runPbkdf2Tests(): Promise<TestResult[]> {
     });
   }
 
+  // Test 5: Invalid algorithm should not crash
+  try {
+    let threw = false;
+    try {
+      await RNSimpleCrypto.PBKDF2.hash('password', 'salt', 4096, 32, 'INVALID');
+    } catch {
+      threw = true;
+    }
+    results.push({
+      name: 'pbkdf2-invalid-algorithm',
+      status: threw ? 'pass' : 'fail',
+      detail: threw
+        ? 'Invalid algorithm correctly rejected'
+        : 'Invalid algorithm did not throw',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'pbkdf2-invalid-algorithm',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
   return results;
 }

@@ -81,5 +81,29 @@ export async function runShaTests(): Promise<TestResult[]> {
     });
   }
 
+  // Test 5: Invalid algorithm should throw (not crash)
+  try {
+    let threw = false;
+    try {
+      const {NativeModules} = require('react-native');
+      await NativeModules.RNSCSha.shaUtf8('test', 'INVALID-ALG');
+    } catch {
+      threw = true;
+    }
+    results.push({
+      name: 'sha-invalid-algorithm',
+      status: threw ? 'pass' : 'fail',
+      detail: threw
+        ? 'Invalid algorithm correctly rejected'
+        : 'Invalid algorithm did not throw',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'sha-invalid-algorithm',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
   return results;
 }

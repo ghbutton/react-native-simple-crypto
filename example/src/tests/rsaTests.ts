@@ -75,7 +75,40 @@ export async function runRsaTests(): Promise<TestResult[]> {
     });
   }
 
-  // Test 4: Verify with tampered data fails
+  // Test 4: encrypt64/decrypt64 round-trip (Base64 string variant)
+  try {
+    const message = 'Hello RSA64!';
+    const messageBase64 = RNSimpleCrypto.utils.convertArrayBufferToBase64(
+      RNSimpleCrypto.utils.convertUtf8ToArrayBuffer(message),
+    );
+    const encrypted64 = await RNSimpleCrypto.RSA.encrypt64(
+      messageBase64,
+      keys.public,
+    );
+    const decrypted64 = await RNSimpleCrypto.RSA.decrypt64(
+      encrypted64,
+      keys.private,
+    );
+    const decryptedMessage = RNSimpleCrypto.utils.convertArrayBufferToUtf8(
+      RNSimpleCrypto.utils.convertBase64ToArrayBuffer(decrypted64),
+    );
+    results.push({
+      name: 'encrypt64-decrypt64',
+      status: decryptedMessage === message ? 'pass' : 'fail',
+      detail:
+        decryptedMessage === message
+          ? 'Base64 round-trip matched'
+          : `Expected "${message}", got "${decryptedMessage}"`,
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'encrypt64-decrypt64',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
+  // Test 5: Verify with tampered data fails
   try {
     const dataToSign = 'original data';
     const signature = await RNSimpleCrypto.RSA.sign(
@@ -103,6 +136,105 @@ export async function runRsaTests(): Promise<TestResult[]> {
       name: 'verify-tampered',
       status: 'pass',
       detail: 'Tampered data threw error (expected)',
+    });
+  }
+
+  // Test 6: Decrypt with wrong key should fail
+  try {
+    const message = 'wrong key test';
+    const encrypted = await RNSimpleCrypto.RSA.encrypt(message, keys.public);
+    const wrongKeys = await RNSimpleCrypto.RSA.generateKeys(1024);
+    let failed = false;
+    try {
+      const result = await RNSimpleCrypto.RSA.decrypt(
+        encrypted,
+        wrongKeys.private,
+      );
+      failed = result !== message;
+    } catch {
+      failed = true;
+    }
+    results.push({
+      name: 'decrypt-wrong-key',
+      status: failed ? 'pass' : 'fail',
+      detail: failed
+        ? 'Wrong key correctly failed'
+        : 'Wrong key unexpectedly succeeded',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'decrypt-wrong-key',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
+  // Test 7: Encrypt with invalid key should throw (not crash)
+  try {
+    let threw = false;
+    try {
+      await RNSimpleCrypto.RSA.encrypt('test', 'not-a-valid-key');
+    } catch {
+      threw = true;
+    }
+    results.push({
+      name: 'encrypt-invalid-key',
+      status: threw ? 'pass' : 'fail',
+      detail: threw
+        ? 'Invalid key correctly rejected'
+        : 'Invalid key did not throw',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'encrypt-invalid-key',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
+  // Test 8: Sign with invalid key should throw (not crash)
+  try {
+    let threw = false;
+    try {
+      await RNSimpleCrypto.RSA.sign('test', 'not-a-valid-key', 'SHA256');
+    } catch {
+      threw = true;
+    }
+    results.push({
+      name: 'sign-invalid-key',
+      status: threw ? 'pass' : 'fail',
+      detail: threw
+        ? 'Invalid key correctly rejected'
+        : 'Invalid key did not throw',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'sign-invalid-key',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
+  // Test 9: Decrypt with invalid key should throw (not crash)
+  try {
+    let threw = false;
+    try {
+      await RNSimpleCrypto.RSA.decrypt('dGVzdA==', 'not-a-valid-key');
+    } catch {
+      threw = true;
+    }
+    results.push({
+      name: 'decrypt-invalid-key',
+      status: threw ? 'pass' : 'fail',
+      detail: threw
+        ? 'Invalid key correctly rejected'
+        : 'Invalid key did not throw',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'decrypt-invalid-key',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
     });
   }
 

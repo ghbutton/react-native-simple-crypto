@@ -72,5 +72,65 @@ export async function runAesTests(): Promise<TestResult[]> {
     });
   }
 
+  // Test 3: Decrypt with wrong IV produces wrong output
+  try {
+    const message = 'wrong iv test';
+    const messageBuffer =
+      RNSimpleCrypto.utils.convertUtf8ToArrayBuffer(message);
+    const key = await RNSimpleCrypto.utils.randomBytes(16);
+    const iv1 = await RNSimpleCrypto.utils.randomBytes(16);
+    const iv2 = await RNSimpleCrypto.utils.randomBytes(16);
+    const cipherText = await RNSimpleCrypto.AES.encrypt(
+      messageBuffer,
+      key,
+      iv1,
+    );
+    let wrongResult = false;
+    try {
+      const bad = await RNSimpleCrypto.AES.decrypt(cipherText, key, iv2);
+      const badText = RNSimpleCrypto.utils.convertArrayBufferToUtf8(bad);
+      wrongResult = badText !== message;
+    } catch {
+      wrongResult = true;
+    }
+    results.push({
+      name: 'wrong-iv',
+      status: wrongResult ? 'pass' : 'fail',
+      detail: wrongResult
+        ? 'Wrong IV correctly produced different output'
+        : 'Wrong IV unexpectedly matched',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'wrong-iv',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
+  // Test 4: Encrypt with empty/invalid data should not crash
+  try {
+    let threw = false;
+    try {
+      const {NativeModules} = require('react-native');
+      await NativeModules.RNSCAes.encrypt('', '', '');
+    } catch {
+      threw = true;
+    }
+    results.push({
+      name: 'encrypt-empty-params',
+      status: threw ? 'pass' : 'fail',
+      detail: threw
+        ? 'Empty params correctly rejected'
+        : 'Empty params did not throw',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'encrypt-empty-params',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
   return results;
 }

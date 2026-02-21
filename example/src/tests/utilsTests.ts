@@ -84,7 +84,30 @@ export async function runUtilsTests(): Promise<TestResult[]> {
     });
   }
 
-  // Test 5: Hex round-trip
+  // Test 5: convertHexToArrayBuffer rejects odd-length hex
+  try {
+    let threw = false;
+    try {
+      RNSimpleCrypto.utils.convertHexToArrayBuffer('abc'); // 3 chars = invalid
+    } catch {
+      threw = true;
+    }
+    results.push({
+      name: 'hex-invalid-odd',
+      status: threw ? 'pass' : 'fail',
+      detail: threw
+        ? 'Odd-length hex correctly rejected'
+        : 'Odd-length hex did not throw',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'hex-invalid-odd',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
+  // Test 6: Hex round-trip
   try {
     const original = 'Hex test data';
     const buf = RNSimpleCrypto.utils.convertUtf8ToArrayBuffer(original);

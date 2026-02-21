@@ -50,6 +50,8 @@ declare module "react-native-simple-crypto" {
     export function generateKeys(keySize: number): Promise<KeyPair>;
     export function encrypt(data: string, key: string): Promise<string>;
     export function decrypt(data: string, key: string): Promise<string>;
+    export function encrypt64(data: string, key: string): Promise<string>;
+    export function decrypt64(data: string, key: string): Promise<string>;
     export function sign(
       data: string,
       key: string,
