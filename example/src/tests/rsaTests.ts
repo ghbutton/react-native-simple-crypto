@@ -139,5 +139,104 @@ export async function runRsaTests(): Promise<TestResult[]> {
     });
   }
 
+  // Test 6: Decrypt with wrong key should fail
+  try {
+    const message = 'wrong key test';
+    const encrypted = await RNSimpleCrypto.RSA.encrypt(message, keys.public);
+    const wrongKeys = await RNSimpleCrypto.RSA.generateKeys(1024);
+    let failed = false;
+    try {
+      const result = await RNSimpleCrypto.RSA.decrypt(
+        encrypted,
+        wrongKeys.private,
+      );
+      failed = result !== message;
+    } catch {
+      failed = true;
+    }
+    results.push({
+      name: 'decrypt-wrong-key',
+      status: failed ? 'pass' : 'fail',
+      detail: failed
+        ? 'Wrong key correctly failed'
+        : 'Wrong key unexpectedly succeeded',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'decrypt-wrong-key',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
+  // Test 7: Encrypt with invalid key should throw (not crash)
+  try {
+    let threw = false;
+    try {
+      await RNSimpleCrypto.RSA.encrypt('test', 'not-a-valid-key');
+    } catch {
+      threw = true;
+    }
+    results.push({
+      name: 'encrypt-invalid-key',
+      status: threw ? 'pass' : 'fail',
+      detail: threw
+        ? 'Invalid key correctly rejected'
+        : 'Invalid key did not throw',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'encrypt-invalid-key',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
+  // Test 8: Sign with invalid key should throw (not crash)
+  try {
+    let threw = false;
+    try {
+      await RNSimpleCrypto.RSA.sign('test', 'not-a-valid-key', 'SHA256');
+    } catch {
+      threw = true;
+    }
+    results.push({
+      name: 'sign-invalid-key',
+      status: threw ? 'pass' : 'fail',
+      detail: threw
+        ? 'Invalid key correctly rejected'
+        : 'Invalid key did not throw',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'sign-invalid-key',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
+  // Test 9: Decrypt with invalid key should throw (not crash)
+  try {
+    let threw = false;
+    try {
+      await RNSimpleCrypto.RSA.decrypt('dGVzdA==', 'not-a-valid-key');
+    } catch {
+      threw = true;
+    }
+    results.push({
+      name: 'decrypt-invalid-key',
+      status: threw ? 'pass' : 'fail',
+      detail: threw
+        ? 'Invalid key correctly rejected'
+        : 'Invalid key did not throw',
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'decrypt-invalid-key',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
   return results;
 }

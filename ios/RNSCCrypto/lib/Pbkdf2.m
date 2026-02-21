@@ -23,7 +23,11 @@
      @"SHA512" : [NSNumber numberWithInt:kCCPRFHmacAlgSHA512],
     };
     
-    int alg = [[algMap valueForKey:algorithm] intValue];
+    NSNumber *algNumber = [algMap valueForKey:algorithm];
+    if (algNumber == nil) {
+        return nil;
+    }
+    int alg = [algNumber intValue];
 
     // Key Derivation using PBKDF2 algorithm.
     int status = CCKeyDerivationPBKDF(
@@ -37,9 +41,9 @@
                     hashKeyData.mutableBytes,
                     hashKeyData.length);
 
-    if (status == kCCParamError) {
-        NSLog(@"Key derivation error");
-        return @"";
+    if (status != kCCSuccess) {
+        NSLog(@"Key derivation error, status: %d", status);
+        return nil;
     }
 
     return [hashKeyData base64EncodedStringWithOptions:0];

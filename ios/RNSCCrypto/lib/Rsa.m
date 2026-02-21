@@ -13,10 +13,10 @@ typedef void (^SecKeyPerformBlock)(SecKeyRef key);
 - (void)generate:(int)keySize {
     NSMutableDictionary *privateKeyAttributes = [NSMutableDictionary dictionary];
 
-	NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init]; 
+	NSMutableDictionary *attributes = [[NSMutableDictionary alloc] init];
     [attributes setObject:(__bridge id)kSecAttrKeyTypeRSA forKey:(__bridge id)kSecAttrKeyType];
     [attributes setObject:[NSNumber numberWithInt:keySize] forKey:(__bridge id)kSecAttrKeySizeInBits];
-	[attributes setObject:privateKeyAttributes forKey:(__bridge id)kSecPrivateKeyAttrs]; 
+	[attributes setObject:privateKeyAttributes forKey:(__bridge id)kSecPrivateKeyAttrs];
 
     CFErrorRef error = NULL;
     SecKeyRef privateKey = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, &error);
@@ -44,40 +44,71 @@ typedef void (^SecKeyPerformBlock)(SecKeyRef key);
 
 - (void)setPublicKey:(NSString *)publicKey {
     publicKey = [RsaFormatter stripHeaders: publicKey];
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:publicKey options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    if (data == nil) {
+        NSLog(@"setPublicKey: invalid base64 data");
+        _publicKeyRef = nil;
+        return;
+    }
     NSDictionary* options = @{(id)kSecAttrKeyType: (id)kSecAttrKeyTypeRSA,
                               (id)kSecAttrKeyClass: (id)kSecAttrKeyClassPublic,
 //                              (id)kSecAttrKeySizeInBits: @2048,
                               };
     CFErrorRef error = NULL;
-    NSData *data = [[NSData alloc] initWithBase64EncodedString:publicKey options:NSDataBase64DecodingIgnoreUnknownCharacters];
     SecKeyRef key = SecKeyCreateWithData((__bridge CFDataRef)data,
                                          (__bridge CFDictionaryRef)options,
                                          &error);
     if (!key) {
         NSError *err = CFBridgingRelease(error);
         NSLog(@"%@", err);
+        _publicKeyRef = nil;
     } else {
-        _publicKeyRef = key;
+        // Verify the key is valid by round-tripping its external representation
+        CFErrorRef verifyError = NULL;
+        CFDataRef keyData = SecKeyCopyExternalRepresentation(key, &verifyError);
+        if (keyData == NULL) {
+            NSLog(@"setPublicKey: key validation failed - corrupted key");
+            CFRelease(key);
+            _publicKeyRef = nil;
+        } else {
+            CFRelease(keyData);
+            _publicKeyRef = key;
+        }
     }
 }
 
 - (void)setPrivateKey:(NSString *)privateKey {
     privateKey = [RsaFormatter stripHeaders: privateKey];
-
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:privateKey options:NSDataBase64DecodingIgnoreUnknownCharacters];
+    if (data == nil) {
+        NSLog(@"setPrivateKey: invalid base64 data");
+        _privateKeyRef = nil;
+        return;
+    }
     NSDictionary* options = @{(id)kSecAttrKeyType: (id)kSecAttrKeyTypeRSA,
                               (id)kSecAttrKeyClass: (id)kSecAttrKeyClassPrivate,
 //                              (id)kSecAttrKeySizeInBits: @2048,
                               };
     CFErrorRef error = NULL;
-    NSData *data = [[NSData alloc] initWithBase64EncodedString:privateKey options:NSDataBase64DecodingIgnoreUnknownCharacters];
     SecKeyRef key = SecKeyCreateWithData((__bridge CFDataRef)data,
                                          (__bridge CFDictionaryRef)options,
                                          &error);
     if (!key) {
         NSError *err = CFBridgingRelease(error);
         NSLog(@"%@", err);
+        _privateKeyRef = nil;
     } else {
-        _privateKeyRef = key;
+        // Verify the key is valid by round-tripping its external representation
+        CFErrorRef verifyError = NULL;
+        CFDataRef keyData = SecKeyCopyExternalRepresentation(key, &verifyError);
+        if (keyData == NULL) {
+            NSLog(@"setPrivateKey: key validation failed - corrupted key");
+            CFRelease(key);
+            _privateKeyRef = nil;
+        } else {
+            CFRelease(keyData);
+            _privateKeyRef = key;
+        }
     }
 }
 
@@ -94,6 +125,10 @@ typedef void (^SecKeyPerformBlock)(SecKeyRef key);
 }
 
 - (NSData *)_encrypt:(NSData *)data {
+    if (self.publicKeyRef == nil) {
+        return nil;
+    }
+
     __block NSData *cipherText = nil;
 
     void(^encryptor)(SecKeyRef) = ^(SecKeyRef publicKey) {
@@ -130,6 +165,10 @@ typedef void (^SecKeyPerformBlock)(SecKeyRef key);
 }
 
 - (NSData *)_decrypt:(NSData *)data {
+    if (self.privateKeyRef == nil) {
+        return nil;
+    }
+
     __block NSData *clearText = nil;
 
     void(^decryptor)(SecKeyRef) = ^(SecKeyRef privateKey) {
@@ -167,6 +206,14 @@ typedef void (^SecKeyPerformBlock)(SecKeyRef key);
 }
 
 - (NSString *)_sign:(NSData *)messageBytes withAlgorithm:(SecKeyAlgorithm)algorithm andError:(NSError **)anError {
+    if (self.privateKeyRef == nil) {
+        NSDictionary *errorDetail = @{
+            NSLocalizedDescriptionKey: @"sign failed: private key is nil"
+        };
+        *anError = [NSError errorWithDomain:@"react-native-simple-crypto" code:0 userInfo:errorDetail];
+        return nil;
+    }
+
     __block NSString *encodedSignature = nil;
 
     if (algorithm == kSecKeyAlgorithmRSASignatureDigestPKCS1v15Raw && [self getKeyLength] < [messageBytes length]) {
@@ -220,6 +267,10 @@ typedef void (^SecKeyPerformBlock)(SecKeyRef key);
 }
 
 - (BOOL)_verify:(NSData *)signatureBytes withMessage:(NSData *)messageBytes andAlgorithm:(SecKeyAlgorithm)algorithm {
+    if (self.publicKeyRef == nil) {
+        return NO;
+    }
+
     __block BOOL result = NO;
 
     void(^verifier)(SecKeyRef) = ^(SecKeyRef publicKey) {
@@ -256,18 +307,18 @@ typedef void (^SecKeyPerformBlock)(SecKeyRef key);
 }
 
 - (NSUInteger) getKeyLength {
-    return SecKeyGetBlockSize(self.privateKeyRef); 
+    return SecKeyGetBlockSize(self.privateKeyRef);
 }
 
 - (NSData *)dataForKey:(SecKeyRef)key {
     CFErrorRef error = NULL;
     NSData * keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(key, &error));
-    
+
     if (!keyData) {
         NSError *err = CFBridgingRelease(error);
         NSLog(@"%@", err);
     }
-    
+
     return keyData;
 }
 

@@ -111,7 +111,7 @@ curl -Ls "https://get.maestro.mobile.dev" | bash
 ### Setup
 
 ```bash
-# Install library dependencies (needed for hex-lite and base64-js)
+# Install library dependencies (needed for base64-js)
 npm install
 
 # Install example app dependencies

@@ -18,5 +18,8 @@ appId: org.reactjs.native.example.SimpleCryptoExample
     id: "utils-base64-roundtrip-result"
     text: "PASS"
 - assertVisible:
+    id: "utils-hex-invalid-odd-result"
+    text: "PASS"
+- assertVisible:
     id: "utils-hex-roundtrip-result"
     text: "PASS"

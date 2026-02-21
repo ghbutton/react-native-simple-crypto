@@ -7,4 +7,4 @@ appId: org.reactjs.native.example.SimpleCryptoExample
     visible:
       id: "overall-status"
       text: "ALL PASS"
-    timeout: 60000
+    timeout: 90000

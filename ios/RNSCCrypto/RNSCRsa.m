@@ -42,53 +42,89 @@ RCT_EXPORT_METHOD(generate:(RCTPromiseResolveBlock)resolve
 RCT_EXPORT_METHOD(generateKeys:(int)keySize resolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        Rsa *rsa = [[Rsa alloc] init];
-        [rsa generate:keySize];
-        NSDictionary *keys = @{
-                            @"private" : [rsa encodedPrivateKey],
-                            @"public" : [rsa encodedPublicKey]
-                            };
-        resolve(keys);
+        @try {
+            Rsa *rsa = [[Rsa alloc] init];
+            [rsa generate:keySize];
+            NSDictionary *keys = @{
+                                @"private" : [rsa encodedPrivateKey],
+                                @"public" : [rsa encodedPublicKey]
+                                };
+            resolve(keys);
+        } @catch (NSException *exception) {
+            reject(@"RSA", exception.reason, nil);
+        }
     });
 }
 
 RCT_EXPORT_METHOD(encrypt:(NSString *)message withKey:(NSString *)key resolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        Rsa *rsa = [[Rsa alloc] init];
-        rsa.publicKey = key;
-        NSString *encodedMessage = [rsa encrypt:message];
-        resolve(encodedMessage);
+        @try {
+            Rsa *rsa = [[Rsa alloc] init];
+            rsa.publicKey = key;
+            NSString *encodedMessage = [rsa encrypt:message];
+            if (encodedMessage == nil) {
+                reject(@"RSA", @"RSA encrypt failed: invalid key or data", nil);
+            } else {
+                resolve(encodedMessage);
+            }
+        } @catch (NSException *exception) {
+            reject(@"RSA", exception.reason, nil);
+        }
     });
 }
 
 RCT_EXPORT_METHOD(decrypt:(NSString *)encodedMessage withKey:(NSString *)key resolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        Rsa *rsa = [[Rsa alloc] init];
-        rsa.privateKey = key;
-        NSString *message = [rsa decrypt:encodedMessage];
-        resolve(message);
+        @try {
+            Rsa *rsa = [[Rsa alloc] init];
+            rsa.privateKey = key;
+            NSString *message = [rsa decrypt:encodedMessage];
+            if (message == nil) {
+                reject(@"RSA", @"RSA decrypt failed: invalid key or data", nil);
+            } else {
+                resolve(message);
+            }
+        } @catch (NSException *exception) {
+            reject(@"RSA", exception.reason, nil);
+        }
     });
 }
 
 RCT_EXPORT_METHOD(encrypt64:(NSString *)message withKey:(NSString *)key resolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        Rsa *rsa = [[Rsa alloc] init];
-        rsa.publicKey = key;
-        NSString *encodedMessage = [rsa encrypt64:message];
-        resolve(encodedMessage);
+        @try {
+            Rsa *rsa = [[Rsa alloc] init];
+            rsa.publicKey = key;
+            NSString *encodedMessage = [rsa encrypt64:message];
+            if (encodedMessage == nil) {
+                reject(@"RSA", @"RSA encrypt64 failed: invalid key or data", nil);
+            } else {
+                resolve(encodedMessage);
+            }
+        } @catch (NSException *exception) {
+            reject(@"RSA", exception.reason, nil);
+        }
     });
 }
 
 RCT_EXPORT_METHOD(decrypt64:(NSString *)encodedMessage withKey:(NSString *)key resolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        Rsa *rsa = [[Rsa alloc] init];
-        rsa.privateKey = key;
-        NSString *message = [rsa decrypt64:encodedMessage];
-        resolve(message);
+        @try {
+            Rsa *rsa = [[Rsa alloc] init];
+            rsa.privateKey = key;
+            NSString *message = [rsa decrypt64:encodedMessage];
+            if (message == nil) {
+                reject(@"RSA", @"RSA decrypt64 failed: invalid key or data", nil);
+            } else {
+                resolve(message);
+            }
+        } @catch (NSException *exception) {
+            reject(@"RSA", exception.reason, nil);
+        }
     });
 }
 
@@ -96,14 +132,18 @@ RCT_EXPORT_METHOD(decrypt64:(NSString *)encodedMessage withKey:(NSString *)key r
 RCT_EXPORT_METHOD(sign:(NSString *)message withKey:(NSString *)key andHash:(NSString *)hash resolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSError *error = nil;
-        Rsa *rsa = [[Rsa alloc] init];
-        rsa.privateKey = key;
-        NSString *signature = [rsa sign:message withAlgorithm:[RNSCRsa getAlgorithmFromHash:hash] andError:&error];
-        if (error != nil) {
-            reject(@"error", error.localizedDescription, error);
-        } else {
-            resolve(signature);
+        @try {
+            NSError *error = nil;
+            Rsa *rsa = [[Rsa alloc] init];
+            rsa.privateKey = key;
+            NSString *signature = [rsa sign:message withAlgorithm:[RNSCRsa getAlgorithmFromHash:hash] andError:&error];
+            if (error != nil) {
+                reject(@"RSA", error.localizedDescription, error);
+            } else {
+                resolve(signature);
+            }
+        } @catch (NSException *exception) {
+            reject(@"RSA", exception.reason, nil);
         }
     });
 }
@@ -111,14 +151,18 @@ RCT_EXPORT_METHOD(sign:(NSString *)message withKey:(NSString *)key andHash:(NSSt
 RCT_EXPORT_METHOD(sign64:(NSString *)message withKey:(NSString *)key andHash:(NSString *)hash resolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSError *error = nil;
-        Rsa *rsa = [[Rsa alloc] init];
-        rsa.privateKey = key;
-        NSString *signature = [rsa sign64:message withAlgorithm:[RNSCRsa getAlgorithmFromHash:hash] andError:&error];
-        if (error != nil) {
-            reject(@"error", error.localizedDescription, error);
-        } else {
-            resolve(signature);
+        @try {
+            NSError *error = nil;
+            Rsa *rsa = [[Rsa alloc] init];
+            rsa.privateKey = key;
+            NSString *signature = [rsa sign64:message withAlgorithm:[RNSCRsa getAlgorithmFromHash:hash] andError:&error];
+            if (error != nil) {
+                reject(@"RSA", error.localizedDescription, error);
+            } else {
+                resolve(signature);
+            }
+        } @catch (NSException *exception) {
+            reject(@"RSA", exception.reason, nil);
         }
     });
 }
@@ -126,20 +170,28 @@ RCT_EXPORT_METHOD(sign64:(NSString *)message withKey:(NSString *)key andHash:(NS
 RCT_EXPORT_METHOD(verify:(NSString *)signature withMessage:(NSString *)message andKey:(NSString *)key andHash:(NSString *)hash resolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        Rsa *rsa = [[Rsa alloc] init];
-        rsa.publicKey = key;
-        BOOL valid = [rsa verify:signature withMessage:message andAlgorithm:[RNSCRsa getAlgorithmFromHash:hash]];
-        resolve(@(valid));
+        @try {
+            Rsa *rsa = [[Rsa alloc] init];
+            rsa.publicKey = key;
+            BOOL valid = [rsa verify:signature withMessage:message andAlgorithm:[RNSCRsa getAlgorithmFromHash:hash]];
+            resolve(@(valid));
+        } @catch (NSException *exception) {
+            reject(@"RSA", exception.reason, nil);
+        }
     });
 }
 
 RCT_EXPORT_METHOD(verify64:(NSString *)signature withMessage:(NSString *)message andKey:(NSString *)key andHash:(NSString *)hash resolve:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject) {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        Rsa *rsa = [[Rsa alloc] init];
-        rsa.publicKey = key;
-        BOOL valid = [rsa verify64:signature withMessage:message andAlgorithm:[RNSCRsa getAlgorithmFromHash:hash]];
-        resolve(@(valid));
+        @try {
+            Rsa *rsa = [[Rsa alloc] init];
+            rsa.publicKey = key;
+            BOOL valid = [rsa verify64:signature withMessage:message andAlgorithm:[RNSCRsa getAlgorithmFromHash:hash]];
+            resolve(@(valid));
+        } @catch (NSException *exception) {
+            reject(@"RSA", exception.reason, nil);
+        }
     });
 }
 

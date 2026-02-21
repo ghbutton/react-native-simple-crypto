@@ -17,3 +17,6 @@ appId: org.reactjs.native.example.SimpleCryptoExample
 - assertVisible:
     id: "sha-sha256-arraybuffer-result"
     text: "PASS"
+- assertVisible:
+    id: "sha-sha-invalid-algorithm-result"
+    text: "PASS"

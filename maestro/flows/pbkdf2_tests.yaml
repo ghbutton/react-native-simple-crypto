@@ -17,3 +17,6 @@ appId: org.reactjs.native.example.SimpleCryptoExample
 - assertVisible:
     id: "pbkdf2-pbkdf2-sha256-result"
     text: "PASS"
+- assertVisible:
+    id: "pbkdf2-pbkdf2-invalid-algorithm-result"
+    text: "PASS"

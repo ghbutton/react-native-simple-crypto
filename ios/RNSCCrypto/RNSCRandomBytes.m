@@ -25,12 +25,15 @@ RCT_EXPORT_METHOD(randomBytes:(NSUInteger)length
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-    NSError *error = nil;
-    NSString *base64 = [RNSCRandomBytes randomBytes:length];
-    if (base64 == nil) {
-        reject(@"random_bytes failed", @"Random bytes error", error);
-    } else {
-        resolve(base64);
+    @try {
+        NSString *base64 = [RNSCRandomBytes randomBytes:length];
+        if (base64 == nil) {
+            reject(@"random_bytes_fail", @"Random bytes error", nil);
+        } else {
+            resolve(base64);
+        }
+    } @catch (NSException *exception) {
+        reject(@"random_bytes_fail", exception.reason, nil);
     }
 }
 
