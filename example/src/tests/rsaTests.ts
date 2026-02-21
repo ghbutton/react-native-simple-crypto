@@ -75,7 +75,40 @@ export async function runRsaTests(): Promise<TestResult[]> {
     });
   }
 
-  // Test 4: Verify with tampered data fails
+  // Test 4: encrypt64/decrypt64 round-trip (Base64 string variant)
+  try {
+    const message = 'Hello RSA64!';
+    const messageBase64 = RNSimpleCrypto.utils.convertArrayBufferToBase64(
+      RNSimpleCrypto.utils.convertUtf8ToArrayBuffer(message),
+    );
+    const encrypted64 = await RNSimpleCrypto.RSA.encrypt64(
+      messageBase64,
+      keys.public,
+    );
+    const decrypted64 = await RNSimpleCrypto.RSA.decrypt64(
+      encrypted64,
+      keys.private,
+    );
+    const decryptedMessage = RNSimpleCrypto.utils.convertArrayBufferToUtf8(
+      RNSimpleCrypto.utils.convertBase64ToArrayBuffer(decrypted64),
+    );
+    results.push({
+      name: 'encrypt64-decrypt64',
+      status: decryptedMessage === message ? 'pass' : 'fail',
+      detail:
+        decryptedMessage === message
+          ? 'Base64 round-trip matched'
+          : `Expected "${message}", got "${decryptedMessage}"`,
+    });
+  } catch (e: any) {
+    results.push({
+      name: 'encrypt64-decrypt64',
+      status: 'fail',
+      detail: `Error: ${e.message}`,
+    });
+  }
+
+  // Test 5: Verify with tampered data fails
   try {
     const dataToSign = 'original data';
     const signature = await RNSimpleCrypto.RSA.sign(

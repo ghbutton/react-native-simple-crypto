@@ -12,6 +12,9 @@ appId: org.reactjs.native.example.SimpleCryptoExample
     id: "rsa-encrypt-decrypt-result"
     text: "PASS"
 - assertVisible:
+    id: "rsa-encrypt64-decrypt64-result"
+    text: "PASS"
+- assertVisible:
     id: "rsa-sign-verify-result"
     text: "PASS"
 - assertVisible:
