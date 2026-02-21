@@ -1,0 +1,19 @@
+appId: org.reactjs.native.example.SimpleCryptoExample
+---
+- launchApp
+- tapOn:
+    id: "sha-run-button"
+- extendedWaitUntil:
+    visible:
+      id: "sha-sha1-known-result"
+      text: "PASS"
+    timeout: 10000
+- assertVisible:
+    id: "sha-sha256-known-result"
+    text: "PASS"
+- assertVisible:
+    id: "sha-sha512-known-result"
+    text: "PASS"
+- assertVisible:
+    id: "sha-sha256-arraybuffer-result"
+    text: "PASS"

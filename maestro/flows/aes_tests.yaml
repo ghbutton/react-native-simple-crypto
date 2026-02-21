@@ -1,0 +1,13 @@
+appId: org.reactjs.native.example.SimpleCryptoExample
+---
+- launchApp
+- tapOn:
+    id: "aes-run-button"
+- extendedWaitUntil:
+    visible:
+      id: "aes-roundtrip-result"
+      text: "PASS"
+    timeout: 15000
+- assertVisible:
+    id: "aes-wrong-key-result"
+    text: "PASS"

@@ -1,0 +1,19 @@
+appId: org.reactjs.native.example.SimpleCryptoExample
+---
+- launchApp
+- tapOn:
+    id: "rsa-run-button"
+- extendedWaitUntil:
+    visible:
+      id: "rsa-keygen-result"
+      text: "PASS"
+    timeout: 30000
+- assertVisible:
+    id: "rsa-encrypt-decrypt-result"
+    text: "PASS"
+- assertVisible:
+    id: "rsa-sign-verify-result"
+    text: "PASS"
+- assertVisible:
+    id: "rsa-verify-tampered-result"
+    text: "PASS"

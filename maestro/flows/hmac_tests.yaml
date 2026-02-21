@@ -1,0 +1,16 @@
+appId: org.reactjs.native.example.SimpleCryptoExample
+---
+- launchApp
+- tapOn:
+    id: "hmac-run-button"
+- extendedWaitUntil:
+    visible:
+      id: "hmac-hmac256-length-result"
+      text: "PASS"
+    timeout: 10000
+- assertVisible:
+    id: "hmac-hmac256-deterministic-result"
+    text: "PASS"
+- assertVisible:
+    id: "hmac-hmac256-different-key-result"
+    text: "PASS"

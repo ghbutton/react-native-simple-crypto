@@ -1,0 +1,22 @@
+appId: org.reactjs.native.example.SimpleCryptoExample
+---
+- launchApp
+- tapOn:
+    id: "utils-run-button"
+- extendedWaitUntil:
+    visible:
+      id: "utils-random-bytes-length-result"
+      text: "PASS"
+    timeout: 10000
+- assertVisible:
+    id: "utils-random-bytes-unique-result"
+    text: "PASS"
+- assertVisible:
+    id: "utils-utf8-roundtrip-result"
+    text: "PASS"
+- assertVisible:
+    id: "utils-base64-roundtrip-result"
+    text: "PASS"
+- assertVisible:
+    id: "utils-hex-roundtrip-result"
+    text: "PASS"
